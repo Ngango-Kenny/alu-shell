@@ -1,21 +1,23 @@
 #!/usr/bin/env bash
-# a lot of extra traps
-file=/var/run/holbertonscript.pid
-function finishQuit {
+#manages the manage_process
+file=/var/run/my_process.pid
+if [ "$1" == "start" ];
+then
+    ./manage_my_process &
+    sudo bash -c "echo $! > $file"
+    echo "manage_my_process started"
+elif [ "$1" == "stop" ];
+then
+    pkill -f ./manage_my_process
     sudo rm $file
-    exit
-}
-function finishTerm {
-    echo 'I hate the kill command'
+    echo "manage_my_process stopped"
+elif [ "$1" == "restart" ];
+then
+    pkill -f ./manage_my_process
     sudo rm $file
-    exit
-}
-trap finishTerm SIGTERM
-trap finishQuit SIGQUIT
-trap "echo 'Y U no love me?!'" SIGINT
-sudo bash -c "echo $$ > $file"
-while ((1))
-do
-    echo "To infinity and beyond"
-    sleep 2
-done
+    ./manage_my_process &
+    sudo bash -c "echo $! > $file"
+    echo "manage_my_process restarted"
+else
+    echo "Usage: manage_my_process {start|stop|restart}"
+fi
